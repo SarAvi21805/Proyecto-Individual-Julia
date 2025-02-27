@@ -70,6 +70,62 @@ println()
 
 
 # Prueba 6: Demostración de List Comprehensions
+println("**********Prueba de List Comprehensions**********")
 cuadrados = [x^2 for x in 1:5]
 println("List Comprehension: ", cuadrados)
 # Fin de la prueba 6
+
+
+# Prueba 7: Demostración de Condicionales
+println("**********Prueba de condicional**********")
+x = -21
+if x > 0
+    println("x es positivo")
+elseif x == 0
+    println("x es cero")
+else
+    println("x es negativo")
+end
+# Fin de la prueba 7
+
+
+# Prueba 8: Demostración de bucles
+println("**********Prueba de Bucle For**********")
+for i in 1:5
+    println("For Loop: ", i)
+end
+println()
+
+println("**********Prueba de Bucle While**********")
+global b = 6
+while b > 0
+    println("While Loop: ", b)
+    global b -= 1
+end
+println()
+
+println("**********Prueba de Bucle do-while**********")
+global a = 7
+while true # Simulación de do-while en Julia
+    println("Do-While Loop: ", a)
+    global a -= 1
+    if a <= 0
+        break
+    end
+end
+println()
+# Fin de la prueba 8
+
+
+# Prueba 9: Demostración de Interruptores (switch)
+println("**********Prueba de Interruptores**********")
+using MLStyle
+valor = 3
+
+@match valor begin
+    1 => println("El valor es 1")
+    2 => println("El valor es 2")
+    3 => println("El valor es 3")
+    _ => println("El valor es diferente de 1, 2 o 3")
+end
+# Fin de la prueba 9
