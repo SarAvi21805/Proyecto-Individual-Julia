@@ -36,3 +36,40 @@ push!(arr, 31) # Añade un elemento (31) al array
 println("Array: ", arr)
 println()
 # Fin de la prueba 2
+
+
+# Prueba 3: Demostración de las Tuplas
+println("**********Prueba de tuplas**********")
+tupla = (1, "Alejandra", 21.08)
+println("Tupla: ", tupla)
+println()
+# Fin de la prueba 3
+
+
+# Prueba 4: Demostración de los Conjuntos
+println("**********Prueba de Conjuntos**********")
+using DataStructures
+set1 = Set([1, 10, 100, 1000, 10])
+push!(set1, 5)
+println("Conjunto: ", set1)
+println()
+# Fin de la prueba 4
+
+
+# Prueba 5: Demostración de rango
+println("**********Prueba de Rangos**********")
+rango = 1:2:10 # Rango con tamaño especificado.
+println("Valores del rango: ", collect(rango))
+println()
+
+rango2 = 1:10 # Rango con tamaño por default
+println("Valores del segundo rango: ", collect(rango2))
+println()
+# Nota/Aprendizaje: collect permite ver cada uno de los valores de los rangos, para ello los convierte en una lista primero y luego los imprime
+# Fin de la prueba 5    
+
+
+# Prueba 6: Demostración de List Comprehensions
+cuadrados = [x^2 for x in 1:5]
+println("List Comprehension: ", cuadrados)
+# Fin de la prueba 6
