@@ -99,8 +99,52 @@ function buscar_por_telefono(telefono::String)
     end
 end
 
-# Prueba del programa
-agregar_contacto("Ana", "25649684")
-agregar_contacto("Juan", "25649685")
-buscar_contacto("Ana")  # Buscar un contacto
-listar_contactos()
+# Menú interactivo
+function menu()
+    cargar_contactos_archivo_csv("contactos.csv") # Carga inicial de datos
+    while true
+        println("\n***** Menú de Contactos *****")
+        println("1. Agregar contacto.")
+        println("2. Modificar contacto.")
+        println("3. Eliminar contacto.")
+        println("4. Buscar contacto por nombre.")
+        println("5. Buscar contacto por teléfono.")
+        println("6. Listar contactos.")
+        println("7. Salir.")
+        opcion = parse(Int, readLine("Seleccione una opción: "))
+
+        if opcion == 1
+            nombre = readLine("Ingrese el nombre: ")
+            telefono = readLine("Ingrese el teléfono: ")
+            agregar_contacto(nombre, telefono)
+        elseif opcion == 2
+            nombre = readLine("Ingrese el nombre del contacto a modificar: ")
+            nuevo_telefono = readLine("Ingrese el nuevo teléfono.")
+            modificar_contacto(nombre, nuevo_telefono)
+        elseif opcion == 3
+            nombre = readLine("Ingrese el nombre del contacto a eliminar: ")
+            println("¿Está seguro que desea eliminar el contacto $nombre? (s/n)")
+            confirmacion = readLine()
+            if confirmacion == "s"
+                eliminar_contacto(nombre)
+            end
+        elseif opcion == 4
+            nombre = readLine("Ingrese el nombre del contacto a buscar: ")
+            buscar_contacto(nombre)
+        elseif opcion == 5
+            telefono = readLine("Ingrese el número de teléfono a buscar: ")
+            buscar_por_telefono(telefono)
+        elseif opcion == 6
+            listar_contactos
+        elseif opcion == 7
+            guardar_contactos("contactos.csv") # Guarda los contactos previamente al Salir
+            println("Saliendo del programa...")
+            break
+        else
+            println("Opción inválida. Por favor, seleccione una opción válida.")
+        end
+    end
+end
+
+# Ejecución del Menú
+menu()
