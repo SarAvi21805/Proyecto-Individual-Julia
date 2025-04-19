@@ -5,6 +5,9 @@
 # Fecha de última modificación: 18/04/2025
 
 #importando recursos necesarios
+import Pkg
+Pkg.add("CSV")
+Pkg.add("DataFrames")
 using CSV
 using DataFrames
 
@@ -51,11 +54,11 @@ function listar_contactos()
 end
 
 # Función que permite cargar los contactos desde un archivo CSV
-function cargar_contactos_archivo_csv(archivo::String)
+function cargar_contactos(archivo::String)
     if isfile(archivo)
-        df = CSV.File(archivo) |> DataFrames
+        df = DataFrame(CSV.File(archivo))
         for row in eachrow(df)
-            contactos[row.nombre] = Contacto(row.nombre, row.telefono)
+            contactos[row.nombre] = Contacto(row.nombre, string(row.telefono))
         end
     end
 end
@@ -93,7 +96,7 @@ end
 function buscar_por_telefono(telefono::String)
     println("Resultados de búsqueda para el número: $telefono")
     for contacto in values(contactos)
-        if eccursin(telefono, contacto.telefono)
+        if occursin(telefono, contacto.telefono)
             println("Nombre: $(contacto.nombre), Teléfono: $(contacto.telefono)")
         end
     end
@@ -101,7 +104,7 @@ end
 
 # Menú interactivo
 function menu()
-    cargar_contactos_archivo_csv("contactos.csv") # Carga inicial de datos
+    cargar_contactos("contactos.csv") # Carga inicial de datos
     while true
         println("\n***** Menú de Contactos *****")
         println("1. Agregar contacto.")
@@ -111,31 +114,39 @@ function menu()
         println("5. Buscar contacto por teléfono.")
         println("6. Listar contactos.")
         println("7. Salir.")
-        opcion = parse(Int, readLine("Seleccione una opción: "))
+        print("Seleccione una opción: ")
+        opcion = parse(Int, readline())
 
         if opcion == 1
-            nombre = readLine("Ingrese el nombre: ")
-            telefono = readLine("Ingrese el teléfono: ")
+            print("Ingrese el nombre: ")
+            nombre = readline()
+            print("Ingrese el teléfono: ")
+            telefono = readline()
             agregar_contacto(nombre, telefono)
         elseif opcion == 2
-            nombre = readLine("Ingrese el nombre del contacto a modificar: ")
-            nuevo_telefono = readLine("Ingrese el nuevo teléfono.")
+            print("Ingrese el nombre del contacto a modificar: ")
+            nombre = readline()
+            print("Ingrese el nuevo teléfono: ")
+            nuevo_telefono = readline()
             modificar_contacto(nombre, nuevo_telefono)
         elseif opcion == 3
-            nombre = readLine("Ingrese el nombre del contacto a eliminar: ")
+            print("Ingrese el nombre del contacto a eliminar: ")
+            nombre = readline()
             println("¿Está seguro que desea eliminar el contacto $nombre? (s/n)")
-            confirmacion = readLine()
+            confirmacion = readline()
             if confirmacion == "s"
                 eliminar_contacto(nombre)
             end
         elseif opcion == 4
-            nombre = readLine("Ingrese el nombre del contacto a buscar: ")
+            print("Ingrese el nombre del contacto a buscar: ")
+            nombre = readline()
             buscar_contacto(nombre)
         elseif opcion == 5
-            telefono = readLine("Ingrese el número de teléfono a buscar: ")
+            print("Ingrese el número de teléfono a buscar: ")
+            telefono = readline()
             buscar_por_telefono(telefono)
         elseif opcion == 6
-            listar_contactos
+            listar_contactos()
         elseif opcion == 7
             guardar_contactos("contactos.csv") # Guarda los contactos previamente al Salir
             println("Saliendo del programa...")
