@@ -12,7 +12,7 @@ using CSV
 using DataFrames
 
 # Estructura para los contactos
-struct Contacto
+mutable struct Contacto
     nombre::String
     telefono::String
 end
@@ -25,8 +25,12 @@ function agregar_contacto(nombre::String, telefono::String)
     if haskey(contactos, nombre)
         println("El contacto $nombre ya existe.")
     else
-        contactos[nombre] = Contacto(nombre, telefono)
-        println("Contacto $nombre agregado con éxito.")
+        if confirmar_accion("agregar", nombre)
+            contactos[nombre] = Contacto(nombre, telefono)
+            println("Contacto $nombre agregado con éxito.")
+        else
+            println("Acción cancelada.")
+        end
     end
 end
 
@@ -45,7 +49,8 @@ function listar_contactos()
     else
         println("***Lista de contactos***")
         println()
-        for (nombre, contacto) in contactos
+        for nombre in sort(collect(keys(contactos))) # Ordenamiento alfabético
+            contacto = contactos[nombre]
             println(" - $nombre: $(contacto.telefono)")
         end
     end
@@ -73,33 +78,63 @@ end
 # Función para eliminar contactos
 function eliminar_contacto(nombre::String)
     if haskey(contactos, nombre)
+        if confirmar_accion("eliminar", nombre)
         delete!(contactos, nombre)
         println("Contacto $nombre eliminado con éxito.")
-    else
-        println("Contacto $nombre no encontrado.")
-    end
-end
-
-# Función para modificar contactos
-function modificar_contacto(nombre::String, nuevo_telefono::String)
-    if haskey(contactos, nombre)
-        nuevo_telefono = ""
-        
-        while true
-            nuevo_telefono = readLine("Ingrese el nuevo teléfono (8 dígitos): ")
-            if validar_telefono(nuevo_telefono)
-                contactos[nombre].telefono = nuevo_telefono
-                println("Contacto modificado: $nombre")
-                break
-            else
-                println("Número de teléfono inválido. Debe contener 8 dígitos.")
-            end
+        else
+            println("Acción cancelada.")
         end
     else
         println("Contacto $nombre no encontrado.")
     end
 end
 
+# Función para modificar contactos
+function modificar_contacto(nombre::String)
+    if haskey(contactos, nombre)
+        while true
+            println("¿Qué campo desea modificar?\n1. Nombre\n2. Teléfono\n3. Cancelar")
+            print("Seleccione una opción: ")
+            opcion = parse(Int, readline())
+            
+            if opcion == 1
+                print("Ingrese el nuevo nombre: ")
+                nuevo_nombre = readline()
+                if confirmar_accion("modificar el nombre a $nuevo_nombre", nombre)
+                    contactos[nuevo_nombre] = Contacto(nuevo_nombre, contactos[nombre].telefono)
+                    delete!(contactos, nombre)
+                    println("Nombre modificado a $nuevo_nombre.")
+                    break 
+                else
+                    println("Acción cancelada")
+                end
+            elseif opcion == 2
+                nuevo_telefono = ""
+                while true
+                    print("Ingrese el nuevo teléfono (8 dígitos): ")
+                    nuevo_telefono = readline()
+                    if validar_telefono(nuevo_telefono)
+                        if confirmar_accion("modificar el teléfono a $nuevo_telefono", nombre)
+                            contactos[nombre].telefono = nuevo_telefono
+                            println("Teléfono modificado a $nuevo_telefono")
+                            break
+                        else
+                            println("Acción cancelada.")
+                        end
+                    else
+                        println("Número de teléfono inválido. Debe tener 8 dígitos.")
+                    end
+                end
+                break
+            else
+                println("Opción inválida.")
+            end
+        end
+    else
+        println("Contacto $nombre no encontrado.")
+    end
+end
+            
 #Función para efectuar búsquedas de contactos por número de teléfono parciales
 function buscar_por_telefono(telefono::String)
     println("Resultados de búsqueda para el número: $telefono")
@@ -113,6 +148,13 @@ end
 # Función para validar el número de teléfono
 function validar_telefono(telefono::String)
     return length(telefono) == 8 && all(isdigit, telefono)
+end
+
+# Función para confirmar acciones del usuario
+function confirmar_accion(accion::String, nombre::String)
+    println("¿Está seguro que desea $accion el contacto $nombre? (s/n)")
+    respuesta = readline()
+    return respuesta == "s"
 end
 
 # Menú interactivo
@@ -133,30 +175,31 @@ function menu()
         if opcion == 1 # Agregar contacto
             print("Ingrese el nombre: ")
             nombre = readline()
-            print("Ingrese el teléfono: ")
-            telefono = readline()
-            agregar_contacto(nombre, telefono)
-            guardar_contactos("contactos.csv")
+            telefono = ""
+            while true
+                print("Ingrese el teléfono (Debe tener 8 dígitos: xxxxxxxx): ")
+                telefono = readline()
+                if validar_telefono(telefono)
+                    agregar_contacto(nombre, telefono)
+                    guardar_contactos("contactos.csv")
+                    break
+                else
+                    println("Número de teléfono inválido. Debe tener 8 dígitos.")
+                end
+            end
         elseif opcion == 2 # Modificar contacto
             print("Ingrese el nombre del contacto a modificar: ")
             nombre = readline()
-            print("Ingrese el nuevo teléfono: ")
-            nuevo_telefono = readline()
-            modificar_contacto(nombre, nuevo_telefono)
+            modificar_contacto(nombre)
             guardar_contactos("contactos.csv")
         elseif opcion == 3 # Eliminar contacto
             print("Ingrese el nombre del contacto a eliminar: ")
             nombre = readline()
-            println("¿Está seguro que desea eliminar el contacto $nombre? (s/n)")
-            confirmacion = readline()
-            if confirmacion == "s"
-                eliminar_contacto(nombre)
-            end
+            eliminar_contacto(nombre)
             guardar_contactos("contactos.csv")
         elseif opcion == 4 # Buscar contacto por nombre
             print("Ingrese el nombre del contacto a buscar: ")
             nombre = readline()
-            #buscar_contacto(nombre)
             coincidencias = buscar_contacto(collect(keys(contactos)), nombre) # Se adjunta el listado de contactos
             if isempty(coincidencias)
                 println("No se encontraron contactos con el nombre: $nombre.")
