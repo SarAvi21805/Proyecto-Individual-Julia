@@ -2,7 +2,7 @@
 # Materia: Algoritmos y estructuras de datos
 # Tarea: Investigación de Lenguajes ----- Fase 4
 # Descripción: Programa que permitirá al usuario agregar, buscar y listar contactos guardados.
-# Fecha de última modificación: 18/04/2025
+# Fecha de última modificación: 24/04/2025
 
 #importando recursos necesarios
 import Pkg
@@ -90,8 +90,26 @@ function eliminar_contacto(nombre::String)
 end
 
 # Función para modificar contactos
-function modificar_contacto(nombre::String)
-    if haskey(contactos, nombre)
+function modificar_contacto()
+    print("Ingrese el nombre del contacto a modificar (o parte del nombre para buscar): ")
+    nombre_parcial = readline()
+    coincidencias = buscar_contacto(collect(keys(contactos)), nombre_parcial)
+
+    if isempty(coincidencias)
+        println("No se encontraron contactos que coindican con: $nombre_parcial")
+        return
+    else
+        println("Contactos encontrados:")
+        for nombre_coincidencia in coincidencias
+            println(" - $nombre_coincidencia")
+        end
+        print("Escriba el nombre exacto para modificar: ")
+        nombre = readline()
+        if !haskey(contactos, nombre)
+            println("El contacto $nombre no existe.")
+            return
+        end
+
         while true
             println("¿Qué campo desea modificar?\n1. Nombre\n2. Teléfono\n3. Cancelar")
             print("Seleccione una opción: ")
@@ -101,7 +119,8 @@ function modificar_contacto(nombre::String)
                 print("Ingrese el nuevo nombre: ")
                 nuevo_nombre = readline()
                 if confirmar_accion("modificar el nombre a $nuevo_nombre", nombre)
-                    contactos[nuevo_nombre] = Contacto(nuevo_nombre, contactos[nombre].telefono)
+                    telefono_actual = contactos[nombre].telefono
+                    contactos[nuevo_nombre] = Contacto(nuevo_nombre, telefono_actual)
                     delete!(contactos, nombre)
                     println("Nombre modificado a $nuevo_nombre.")
                     break 
@@ -115,7 +134,7 @@ function modificar_contacto(nombre::String)
                     nuevo_telefono = readline()
                     if validar_telefono(nuevo_telefono)
                         if confirmar_accion("modificar el teléfono a $nuevo_telefono", nombre)
-                            contactos[nombre].telefono = nuevo_telefono
+                            contactos[nombre] = Contacto(nombre, nuevo_telefono)
                             println("Teléfono modificado a $nuevo_telefono")
                             break
                         else
@@ -126,12 +145,13 @@ function modificar_contacto(nombre::String)
                     end
                 end
                 break
+            elseif opcion == 3
+                println("Acción cancelada.")
+                break
             else
                 println("Opción inválida.")
             end
         end
-    else
-        println("Contacto $nombre no encontrado.")
     end
 end
             
@@ -171,6 +191,7 @@ function menu()
         println("7. Salir.")
         print("Seleccione una opción: ")
         opcion = parse(Int, readline())
+        println()
 
         if opcion == 1 # Agregar contacto
             print("Ingrese el nombre: ")
@@ -188,9 +209,7 @@ function menu()
                 end
             end
         elseif opcion == 2 # Modificar contacto
-            print("Ingrese el nombre del contacto a modificar: ")
-            nombre = readline()
-            modificar_contacto(nombre)
+            modificar_contacto()
             guardar_contactos("contactos.csv")
         elseif opcion == 3 # Eliminar contacto
             print("Ingrese el nombre del contacto a eliminar: ")
