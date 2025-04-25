@@ -30,14 +30,14 @@ function agregar_contacto(nombre::String, telefono::String)
     end
 end
 
-# Función para buscar un contacto
-function buscar_contacto(nombre::String)
-    if haskey(contactos, nombre)
-        contacto = contactos[nombre]
-        println("Contacto con el nombre: $(contacto.nombre) fue encontrado, su número de teléfono es: $(contacto.telefono).")
-    else
-        println("Contacto no encontrado.")
-    end
+
+function buscar_contacto(lista::Vector{String}, nombre::String)
+    # Conversión del texto a minúsculas
+    texto_a_buscar_lower = lowercase(nombre)
+
+    coincidencias = filter(x -> occursin(texto_a_buscar_lower, lowercase(x)), lista)
+
+    return coincidencias
 end
 
 # Función para listar todos los contactos
@@ -46,9 +46,9 @@ function listar_contactos()
         println("No hay contactos registrados.")
     else
         println("***Lista de contactos***")
-        println("Nombre: teléfono")
+        println()
         for (nombre, contacto) in contactos
-            println("$nombre: $(contacto.telefono)")
+            println(" - $nombre: $(contacto.telefono)")
         end
     end
 end
@@ -123,12 +123,14 @@ function menu()
             print("Ingrese el teléfono: ")
             telefono = readline()
             agregar_contacto(nombre, telefono)
+            guardar_contactos("contactos.csv")
         elseif opcion == 2
             print("Ingrese el nombre del contacto a modificar: ")
             nombre = readline()
             print("Ingrese el nuevo teléfono: ")
             nuevo_telefono = readline()
             modificar_contacto(nombre, nuevo_telefono)
+            guardar_contactos("contactos.csv")
         elseif opcion == 3
             print("Ingrese el nombre del contacto a eliminar: ")
             nombre = readline()
@@ -137,10 +139,21 @@ function menu()
             if confirmacion == "s"
                 eliminar_contacto(nombre)
             end
+            guardar_contactos("contactos.csv")
         elseif opcion == 4
             print("Ingrese el nombre del contacto a buscar: ")
             nombre = readline()
-            buscar_contacto(nombre)
+            #buscar_contacto(nombre)
+            coincidencias = buscar_contacto(collect(keys(contactos)), nombre) # Se adjunta el listado de contactos
+            if isempty(coincidencias)
+                println("No se encontraron contactos con el nombre: $nombre.")
+            else
+                println("*** Resultados de búsqueda ***")
+                for nombre_coincidencia in coincidencias
+                    contacto = contactos[nombre_coincidencia]
+                    println("- $nombre_coincidencia: $(contacto.telefono)")
+                end
+            end
         elseif opcion == 5
             print("Ingrese el número de teléfono a buscar: ")
             telefono = readline()
